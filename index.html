@@ -76,9 +76,17 @@
           <i data-lucide="user-plus" class="w-4 h-4"></i>
           <span>Tambah Siswa</span>
         </button>
+        <button onclick="openSignerSettingsModal()" class="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-lg text-sm font-semibold transition shadow-sm">
+          <i data-lucide="pen-tool" class="w-4 h-4 text-emerald-300"></i>
+          <span class="hidden sm:inline">Data Penandatangan</span>
+        </button>
         <button onclick="openMonthlyReportModal()" class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-900 px-3.5 py-2 rounded-lg text-sm font-semibold transition shadow-sm">
           <i data-lucide="calendar" class="w-4 h-4"></i>
           <span class="hidden sm:inline">Laporan Bulanan</span>
+        </button>
+        <button onclick="openSpreadsheetSettingsModal()" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-3.5 py-2 rounded-lg text-sm font-semibold transition shadow-sm" title="Hubungkan ke Google Sheets Online">
+          <i data-lucide="sheet" class="w-4 h-4 text-emerald-100"></i>
+          <span class="hidden sm:inline">Konek Sheets</span>
         </button>
         <button onclick="exportToExcel()" class="inline-flex items-center gap-2 bg-white text-emerald-800 hover:bg-emerald-50 px-3.5 py-2 rounded-lg text-sm font-semibold transition shadow-sm">
           <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-700"></i>
@@ -122,11 +130,11 @@
         </span>
         <button onclick="syncToCloud()" title="Simpan perubahan ke Cloud" class="inline-flex items-center gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-lg border border-emerald-400/50 shadow-sm transition">
           <i data-lucide="cloud-upload" class="w-3.5 h-3.5"></i>
-          <span>Simpan ke Cloud</span>
+          <span>Simpan ke Cloud / Sheets</span>
         </button>
-        <button onclick="pullFromCloud()" title="Ambil data terbaru dari Cloud" class="inline-flex items-center gap-1.5 text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-semibold px-3 py-1.5 rounded-lg border border-emerald-500 transition">
+        <button onclick="pullFromCloud()" title="Ambil data terbaru dari Cloud / Sheets" class="inline-flex items-center gap-1.5 text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-semibold px-3 py-1.5 rounded-lg border border-emerald-500 transition">
           <i data-lucide="cloud-download" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Tarik Data Cloud</span>
+          <span class="hidden sm:inline">Tarik Data Sheets</span>
         </button>
       </div>
     </div>
@@ -430,86 +438,165 @@
               </div>
               <div class="bg-indigo-50 rounded-lg p-2 text-center">
                 <span class="text-[10px] text-indigo-700 font-semibold block uppercase">Pemanggilan</span>
-                <span id="profCalls" class="text-sm font-bold text-indigo-900">0x</span>
+                <span id="profCalls" class="text-sm font-bold text-indigo-900">0 Kali</span>
               </div>
               <div class="bg-emerald-50 rounded-lg p-2 text-center">
                 <span class="text-[10px] text-emerald-700 font-semibold block uppercase">Home Visit</span>
                 <span id="profHomeVisit" class="text-sm font-bold text-emerald-900">Belum</span>
               </div>
             </div>
+
+            <!-- Tombol Aksi Profil -->
+            <div class="pt-3 flex flex-wrap gap-2 justify-center sm:justify-start">
+              <button id="btnEditProfileDetails" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition border border-slate-300">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                Edit Biodata
+              </button>
+              <button onclick="openAddCaseModalFromProfile()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-500 rounded-lg transition shadow-sm">
+                <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                + Catat Kasus
+              </button>
+              <button onclick="openAddCallLogModal(currentSelectedStudentId)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition shadow-sm">
+                <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
+                Catat Hasil Panggilan
+              </button>
+              <button onclick="openPrintStudentModal(currentSelectedStudentId)" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition shadow-sm">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                Cetak PDF Rekam Kasus
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Rekap Kasus Khusus Siswa Ini -->
-        <div class="mt-5">
-          <div class="flex items-center justify-between mb-3">
-            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-              <i data-lucide="file-text" class="w-4 h-4 text-emerald-700"></i>
-              Riwayat Kasus & Catatan BK Siswa
-            </h4>
-            <button onclick="openAddCaseModalFromProfile()" class="text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-medium px-2.5 py-1.5 rounded-lg flex items-center gap-1">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Tambah Kasus
-            </button>
+        <!-- Bagian Tab / Rincian Kasus & Dokumen -->
+        <div class="mt-6 space-y-6">
+          <!-- Riwayat Kasus -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="history" class="w-4 h-4 text-amber-600"></i>
+                Riwayat Catatan Kasus & Penanganan
+              </h4>
+            </div>
+            <div id="studentCasesList" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
           </div>
 
-          <div id="studentCasesList" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar pr-1">
-            <!-- Kasus terisi disini -->
-          </div>
-        </div>
-
-        <!-- Bagian Hasil Pemanggilan Siswa & Orang Tua -->
-        <div class="mt-5 pt-4 border-t border-slate-200">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                <i data-lucide="phone-call" class="w-4 h-4 text-indigo-700"></i>
+          <!-- Riwayat Hasil Pemanggilan -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="phone-forwarded" class="w-4 h-4 text-indigo-600"></i>
                 Riwayat & Hasil Pemanggilan (Siswa / Orang Tua)
               </h4>
-              <p class="text-[11px] text-slate-500">Hasil berita acara, hasil pemanggilan siswa & orang tua</p>
             </div>
-            <button onclick="openAddCallLogModal(currentSelectedStudentId)" class="text-xs bg-indigo-700 hover:bg-indigo-600 text-white font-medium px-2.5 py-1.5 rounded-lg flex items-center gap-1">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Catat Hasil Panggilan
-            </button>
+            <div id="callLogsList" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
           </div>
-          <div id="callLogsList" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
-            <!-- Daftar riwayat & hasil pemanggilan -->
-          </div>
-        </div>
 
-        <!-- Bagian Berkas Dokumentasi Home Visit -->
-        <div class="mt-5 pt-4 border-t border-slate-200">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                <i data-lucide="folder-check" class="w-4 h-4 text-emerald-700"></i>
+          <!-- Berkas Bukti Home Visit -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="folder-check" class="w-4 h-4 text-emerald-600"></i>
                 Dokumentasi & Bukti Home Visit
               </h4>
-              <p class="text-[11px] text-slate-500">Berkas otomatis dinamai sesuai format: [Nama]_[TglKejadian]_HomeVisit</p>
+              <button onclick="openHomeVisitUploadModal(currentSelectedStudentId)" class="text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded border border-emerald-200">
+                + Upload Bukti Baru
+              </button>
             </div>
-            <button onclick="openHomeVisitUploadModal(currentSelectedStudentId)" class="text-xs bg-emerald-700 hover:bg-emerald-600 text-white font-medium px-2.5 py-1.5 rounded-lg flex items-center gap-1">
-              <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> Upload Bukti
-            </button>
-          </div>
-          <div id="homeVisitDocList" class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
-            <!-- Daftar berkas home visit siswa -->
+            <div id="homeVisitDocList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1"></div>
           </div>
         </div>
+      </div>
 
-        <!-- Tombol Bawah -->
-        <div class="mt-6 pt-4 border-t border-slate-200 flex flex-wrap justify-between items-center gap-2">
-          <div class="flex items-center gap-2">
-            <button id="btnEditProfileDetails" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition">
-              <i data-lucide="edit-3" class="w-4 h-4 text-emerald-700"></i>
-              Edit Biodata Siswa
-            </button>
-            <button onclick="openPrintStudentModal(currentSelectedStudentId)" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-indigo-900 bg-indigo-50 hover:bg-indigo-100 rounded-lg border border-indigo-200 transition">
-              <i data-lucide="printer" class="w-4 h-4 text-indigo-600"></i>
-              Cetak PDF Rekam Kasus
-            </button>
+      <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+        <button type="button" onclick="closeProfileModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 rounded-lg">
+          Tutup Profil
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL PENGATURAN DATA PENANDATANGAN ==================== -->
+  <div id="signerSettingsModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+      <div class="bg-emerald-800 text-white px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-semibold text-sm flex items-center gap-2">
+          <i data-lucide="pen-tool" class="w-4 h-4 text-emerald-300"></i>
+          Pengaturan Data Penandatangan Dokumen
+        </h3>
+        <button onclick="closeSignerSettingsModal()" class="text-emerald-200 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-3">
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Satuan Kerja (SATKER)</label>
+          <input type="text" id="navSignerSatker" placeholder="MTs Negeri Landak" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Tempat TTD</label>
+            <input type="text" id="navSignerPlace" placeholder="Ngabang" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
           </div>
-          <button type="button" onclick="closeProfileModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
-            Tutup
-          </button>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Tanggal TTD</label>
+            <input type="date" id="navSignerDate" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Nama Kepala Madrasah</label>
+          <input type="text" id="navSignerHeadmasterName" placeholder="Nama Kepala Madrasah, M.Pd" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">NIP Kepala Madrasah</label>
+          <input type="text" id="navSignerHeadmasterNip" placeholder="197XXXXXXXXXXXXXXX" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Nama Guru BK</label>
+          <input type="text" id="navSignerCounselorName" placeholder="Nama Guru BK, S.Pd" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">NIP Guru BK</label>
+          <input type="text" id="navSignerCounselorNip" placeholder="198XXXXXXXXXXXXXXX atau -" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeSignerSettingsModal()" class="px-3.5 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+          <button type="button" onclick="saveSignerFromNavModal()" class="px-4 py-1.5 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-600 rounded-lg shadow">Simpan Penandatangan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL KONEKSI GOOGLE SPREADSHEET ==================== -->
+  <div id="spreadsheetSettingsModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden">
+      <div class="bg-emerald-800 text-white px-5 py-4 flex items-center justify-between">
+        <h3 class="font-semibold text-sm flex items-center gap-2">
+          <i data-lucide="sheet" class="w-4 h-4 text-emerald-300"></i>
+          Hubungkan ke Google Spreadsheet Online
+        </h3>
+        <button onclick="closeSpreadsheetSettingsModal()" class="text-emerald-200 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-3.5">
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Tempelkan URL Web App dari <strong>Google Apps Script</strong> yang telah Anda terapkan (Deploy) untuk menyinkronkan data siswa secara live ke Google Sheets:
+        </p>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">URL Google Apps Script Web App</label>
+          <input type="url" id="sheetsApiUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+        </div>
+
+        <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-900 leading-relaxed">
+          <strong>Tip Penggunaan:</strong> Setelah URL disimpan, setiap kali Anda klik tombol <strong>"Simpan ke Cloud / Sheets"</strong> atau <strong>"Tarik Data Sheets"</strong>, aplikasi akan langsung bertukar data dua arah dengan Google Spreadsheet Anda secara otomatis!
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeSpreadsheetSettingsModal()" class="px-3.5 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+          <button type="button" onclick="saveSpreadsheetSettings()" class="px-4 py-1.5 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-600 rounded-lg shadow">Simpan URL Koneksi</button>
         </div>
       </div>
     </div>
@@ -881,6 +968,78 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL DATA PENANDATANGAN DOKUMEN ==================== -->
+  <div id="signerSettingsModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden my-6 transform transition-all">
+      <div class="bg-emerald-800 text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="pen-tool" class="w-5 h-5 text-emerald-300"></i>
+          <div>
+            <h3 class="font-semibold text-base">Data Pejabat & Penandatangan</h3>
+            <p class="text-xs text-emerald-200">Pengaturan tanda tangan cetak dokumen rekam jejak siswa</p>
+          </div>
+        </div>
+        <button onclick="closeSignerSettingsModal()" class="text-emerald-200 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="signerNavForm" onsubmit="saveSignerFromNavModal(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Satuan Kerja (SATKER)</label>
+          <input type="text" id="navSignerSatker" required placeholder="Contoh: MTs Negeri Landak" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tempat Penandatanganan</label>
+            <input type="text" id="navSignerPlace" required placeholder="Contoh: Ngabang" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none font-medium">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Tanggal Tanda Tangan</label>
+            <input type="date" id="navSignerDate" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+          <span class="block text-xs font-bold text-slate-700 uppercase tracking-wide">1. Kepala Madrasah</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Nama Lengkap & Gelar</label>
+              <input type="text" id="navSignerHeadmasterName" required placeholder="Drs. H. Saiful Anam, M.Pd" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-600 bg-white">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">NIP Kepala Madrasah</label>
+              <input type="text" id="navSignerHeadmasterNip" required placeholder="197XXXXXXXXXXXXXXX" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-600 bg-white font-mono">
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+          <span class="block text-xs font-bold text-slate-700 uppercase tracking-wide">2. Guru Bimbingan Konseling (BK)</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Nama Guru BK & Gelar</label>
+              <input type="text" id="navSignerCounselorName" required placeholder="Siti Maryam, S.Pd" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-600 bg-white">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">NIP Guru BK</label>
+              <input type="text" id="navSignerCounselorNip" required placeholder="198XXXXXXXXXXXXXXX atau -" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-600 bg-white font-mono">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeSignerSettingsModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">Batal</button>
+          <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-600 rounded-lg shadow transition inline-flex items-center gap-1.5">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            Simpan Data Penandatangan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== MODAL LAPORAN BULANAN ==================== -->
   <div id="monthlyReportModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl max-w-5xl w-full shadow-2xl border border-slate-100 overflow-hidden my-6 transform transition-all flex flex-col max-h-[90vh]">
@@ -976,6 +1135,17 @@
 
   <!-- Javascript Logic -->
   <script>
+    // Helper Sanitize HTML
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return "";
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     // Inisialisasi Data Demo Awal
     const INITIAL_STUDENTS = [
       {
@@ -999,14 +1169,16 @@
             description: "Sering mengantuk dan tertidur saat jam pelajaran matematika.",
             action: "Konseling individu, diimbau tidur teratur."
           }
-        ]
+        ],
+        callLogs: [],
+        homeVisitDocs: []
       },
       {
         id: "std-2",
-        name: "Nur Halizah Putri",
+        name: "Nurul Aulia Rahma",
         class: "VII-B",
-        phone: "085345678922",
-        address: "Dusun Hilir Kantor RT 04/RW 02, Ngabang",
+        phone: "085234567890",
+        address: "Dusun Hilir Kantor, Ngabang",
         academicYear: "2026/2027",
         semester: "all",
         sakit: 0,
@@ -1014,85 +1186,91 @@
         alpa: 3,
         calls: 2,
         homeVisit: true,
-        photo: "https://placehold.co/200x200/047857/ffffff?text=Halizah",
+        photo: "https://placehold.co/200x200/065f46/ffffff?text=Nurul",
         cases: [
           {
             id: "cs-102",
             date: "2026-10-20",
-            description: "Absen berturut-turut tanpa kabar selama 3 hari.",
-            action: "Home visit ke kediaman orang tua, siswa membantu ortu di kebun."
+            description: "Tidak masuk sekolah tanpa keterangan selama 3 hari berturut-turut.",
+            action: "Pemanggilan orang tua dan kunjungan rumah (home visit)."
           }
-        ]
-      },
-      {
-        id: "std-3",
-        name: "Rian Hendrawan",
-        class: "IX-A",
-        phone: "089612345678",
-        address: "Desa Raja, Kec. Ngabang, Landak",
-        academicYear: "2026/2027",
-        semester: "all",
-        sakit: 1,
-        izin: 0,
-        alpa: 4,
-        calls: 3,
-        homeVisit: true,
-        photo: "https://placehold.co/200x200/1e3a8a/ffffff?text=Rian",
-        cases: [
+        ],
+        callLogs: [
           {
-            id: "cs-103",
-            date: "2026-10-28",
-            description: "Meninggalkan lingkungan madrasah saat jam istirahat tanpa izin.",
-            action: "Pemanggilan siswa ke ruang BK, penandatanganan surat komitmen disiplin."
+            id: "call-201",
+            date: "2026-10-22",
+            target: "Orang Tua / Wali",
+            reason: "Klarifikasi ketidakhadiran tanpa keterangan 3 hari berturut-turut",
+            result: "Orang tua berhalangan hadir ke madrasah karena merawat kakek di kampung. Disepakati komitmen kehadiran siswa dan jadwal pemantauan mingguan oleh guru BK."
           }
-        ]
+        ],
+        homeVisitDocs: []
       }
     ];
 
     // State Aplikasi
-    let students = [];
+    const LOCAL_STORAGE_KEY = "mtsn_landak_bk_students_data_v1";
+    let students = loadFromLocalStorage();
     let currentSelectedStudentId = null;
-    let selectedStudentIds = new Set(); // Set untuk menampung ID siswa yang dipilih untuk hapus massal
+    let selectedStudentIds = new Set();
 
-    // Load data saat dokumen siap
-    document.addEventListener("DOMContentLoaded", () => {
-      loadStudents();
-      initCloudSync();
-      lucide.createIcons();
-    });
-
-    // Memuat data dari Local Storage atau Default
-    function loadStudents() {
-      const stored = localStorage.getItem("mtsn_landak_bk_students");
+    function loadFromLocalStorage() {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (stored) {
         try {
-          students = JSON.parse(stored);
+          return JSON.parse(stored);
         } catch (e) {
-          students = [...INITIAL_STUDENTS];
+          console.error("Gagal memuat data dari LocalStorage:", e);
         }
-      } else {
-        students = [...INITIAL_STUDENTS];
-        saveToLocalStorage();
       }
-      renderTable();
-      updateStatistics();
+      return JSON.parse(JSON.stringify(INITIAL_STUDENTS));
     }
 
     function saveToLocalStorage() {
-      localStorage.setItem("mtsn_landak_bk_students", JSON.stringify(students));
-      // Otomatis sinkronkan penanda penyimpanan cloud lokal
-      updateCloudStatus("Tersimpan Lokal & Cloud", true);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(students));
     }
 
-    // ==================== CLOUD STORAGE LOGIC ====================
+    // ==================== CLOUD & SPREADSHEET SYNC LOGIC ====================
     const CLOUD_STORAGE_KEY = "mtsn_landak_bk_cloud_data_v1";
+    const SHEETS_API_KEY = "mtsn_landak_sheets_api_url";
 
-    function initCloudSync() {
-      const cloudData = localStorage.getItem(CLOUD_STORAGE_KEY);
-      if (cloudData) {
-        updateCloudStatus("Cloud Terhubung", true);
+    function openSpreadsheetSettingsModal() {
+      const saved = localStorage.getItem(SHEETS_API_KEY) || "";
+      document.getElementById("sheetsApiUrlInput").value = saved;
+      document.getElementById("spreadsheetSettingsModal").classList.remove("hidden");
+      document.getElementById("spreadsheetSettingsModal").classList.add("flex");
+      lucide.createIcons();
+    }
+
+    function closeSpreadsheetSettingsModal() {
+      document.getElementById("spreadsheetSettingsModal").classList.add("hidden");
+      document.getElementById("spreadsheetSettingsModal").classList.remove("flex");
+    }
+
+    function saveSpreadsheetSettings() {
+      const url = document.getElementById("sheetsApiUrlInput").value.trim();
+      localStorage.setItem(SHEETS_API_KEY, url);
+      closeSpreadsheetSettingsModal();
+      if (url) {
+        updateCloudStatus("Sheets Terhubung", true);
+        showToast("URL Google Sheets berhasil disimpan!");
       } else {
         updateCloudStatus("Cloud Siap", true);
+        showToast("Koneksi Sheets dinonaktifkan", "info");
+      }
+    }
+
+    function initCloudSync() {
+      const sheetsUrl = localStorage.getItem(SHEETS_API_KEY);
+      if (sheetsUrl) {
+        updateCloudStatus("Sheets Terhubung", true);
+      } else {
+        const cloudData = localStorage.getItem(CLOUD_STORAGE_KEY);
+        if (cloudData) {
+          updateCloudStatus("Cloud Terhubung", true);
+        } else {
+          updateCloudStatus("Cloud Siap", true);
+        }
       }
     }
 
@@ -1109,30 +1287,79 @@
       }
     }
 
-    function syncToCloud() {
+    async function syncToCloud() {
       updateCloudStatus("Menyimpan ke Cloud...", true);
-      try {
-        const payload = {
-          version: "1.0",
-          timestamp: new Date().toISOString(),
-          academicYear: document.getElementById("selectAcademicYear").value,
-          semester: document.getElementById("selectSemester").value,
-          data: students
-        };
-        localStorage.setItem(CLOUD_STORAGE_KEY, JSON.stringify(payload));
-        
-        setTimeout(() => {
-          updateCloudStatus("Cloud Tersinkron", true);
-          showToast("Data bimbingan konseling berhasil disimpan ke Cloud!");
-        }, 500);
-      } catch (e) {
-        console.error(e);
-        updateCloudStatus("Gagal Cloud", false);
-        showToast("Gagal menyimpan ke Cloud!", "error");
+      const sheetsUrl = localStorage.getItem(SHEETS_API_KEY);
+
+      // 1. Simpan ke Local Storage / Backup
+      const payload = {
+        version: "1.0",
+        timestamp: new Date().toISOString(),
+        academicYear: document.getElementById("selectAcademicYear").value,
+        semester: document.getElementById("selectSemester").value,
+        data: students
+      };
+      localStorage.setItem(CLOUD_STORAGE_KEY, JSON.stringify(payload));
+
+      // 2. Jika ada URL Google Sheets terhubung, kirim ke Spreadsheet online
+      if (sheetsUrl) {
+        updateCloudStatus("Mengirim ke Sheets...", true);
+        try {
+          await fetch(sheetsUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "syncAll",
+              students: students
+            })
+          });
+          updateCloudStatus("Sheets Tersinkron", true);
+          showToast("Data siswa berhasil tersinkron ke Google Spreadsheet!");
+          return;
+        } catch (e) {
+          console.error(e);
+          updateCloudStatus("Gagal kirim Sheets", false);
+          showToast("Gagal mengirim data ke Google Sheets!", "error");
+          return;
+        }
       }
+
+      setTimeout(() => {
+        updateCloudStatus("Cloud Tersinkron", true);
+        showToast("Data bimbingan konseling berhasil disimpan ke Cloud!");
+      }, 400);
     }
 
-    function pullFromCloud() {
+    async function pullFromCloud() {
+      const sheetsUrl = localStorage.getItem(SHEETS_API_KEY);
+
+      // Tarik dari Google Sheets jika URL tersedia
+      if (sheetsUrl) {
+        updateCloudStatus("Mengambil data Sheets...", true);
+        try {
+          const res = await fetch(sheetsUrl);
+          const json = await res.json();
+          if (json && json.status === "success" && Array.isArray(json.data) && json.data.length > 0) {
+            if (window.confirm(`Ditemukan ${json.data.length} data siswa di Google Spreadsheet. Terapkan data ini ke aplikasi?`)) {
+              students = json.data;
+              saveToLocalStorage();
+              renderTable();
+              updateStatistics();
+              updateCloudStatus("Sheets Tersinkron", true);
+              showToast(`Berhasil memuat ${json.data.length} siswa dari Google Sheets!`);
+              return;
+            }
+          } else {
+            showToast("Spreadsheet masih kosong atau belum ada data siswa.", "info");
+          }
+        } catch (e) {
+          console.error(e);
+          showToast("Gagal mengambil data dari Google Sheets!", "error");
+        }
+      }
+
+      // Fallback ke penyimpanan cadangan lokal
       const raw = localStorage.getItem(CLOUD_STORAGE_KEY);
       if (!raw) {
         showToast("Belum ada backup data di Cloud. Silakan simpan ke Cloud terlebih dahulu.", "info");
@@ -1741,7 +1968,7 @@
     // Kunci simpan data penandatangan
     const SIGNER_STORAGE_KEY = "mtsn_landak_bk_signers";
 
-    function loadSignerSettings() {
+    function getSignerSettings() {
       const stored = localStorage.getItem(SIGNER_STORAGE_KEY);
       let signers = {
         satker: "MTs Negeri Landak",
@@ -1760,25 +1987,76 @@
           console.error(e);
         }
       }
+      return signers;
+    }
 
-      document.getElementById("signerSatker").value = signers.satker || "";
-      document.getElementById("signerPlace").value = signers.place || "";
-      document.getElementById("signerDate").value = signers.date || new Date().toISOString().split("T")[0];
-      document.getElementById("signerHeadmasterName").value = signers.headmasterName || "";
-      document.getElementById("signerHeadmasterNip").value = signers.headmasterNip || "";
-      document.getElementById("signerCounselorName").value = signers.counselorName || "";
-      document.getElementById("signerCounselorNip").value = signers.counselorNip || "";
+    function loadSignerSettings() {
+      const signers = getSignerSettings();
+
+      const elSatker = document.getElementById("signerSatker");
+      if (elSatker) elSatker.value = signers.satker || "";
+      const elPlace = document.getElementById("signerPlace");
+      if (elPlace) elPlace.value = signers.place || "";
+      const elDate = document.getElementById("signerDate");
+      if (elDate) elDate.value = signers.date || new Date().toISOString().split("T")[0];
+      const elHmName = document.getElementById("signerHeadmasterName");
+      if (elHmName) elHmName.value = signers.headmasterName || "";
+      const elHmNip = document.getElementById("signerHeadmasterNip");
+      if (elHmNip) elHmNip.value = signers.headmasterNip || "";
+      const elCsName = document.getElementById("signerCounselorName");
+      if (elCsName) elCsName.value = signers.counselorName || "";
+      const elCsNip = document.getElementById("signerCounselorNip");
+      if (elCsNip) elCsNip.value = signers.counselorNip || "";
+    }
+
+    // ==================== MODAL KHUSUS DATA PENANDATANGAN DARI NAV ====================
+    function openSignerSettingsModal() {
+      const signers = getSignerSettings();
+
+      document.getElementById("navSignerSatker").value = signers.satker || "MTs Negeri Landak";
+      document.getElementById("navSignerPlace").value = signers.place || "Ngabang";
+      document.getElementById("navSignerDate").value = signers.date || new Date().toISOString().split("T")[0];
+      document.getElementById("navSignerHeadmasterName").value = signers.headmasterName || "";
+      document.getElementById("navSignerHeadmasterNip").value = signers.headmasterNip || "";
+      document.getElementById("navSignerCounselorName").value = signers.counselorName || "";
+      document.getElementById("navSignerCounselorNip").value = signers.counselorNip || "";
+
+      document.getElementById("signerSettingsModal").classList.remove("hidden");
+      document.getElementById("signerSettingsModal").classList.add("flex");
+      lucide.createIcons();
+    }
+
+    function closeSignerSettingsModal() {
+      document.getElementById("signerSettingsModal").classList.add("hidden");
+      document.getElementById("signerSettingsModal").classList.remove("flex");
+    }
+
+    function saveSignerFromNavModal(event) {
+      event.preventDefault();
+      const signers = {
+        satker: document.getElementById("navSignerSatker").value.trim(),
+        place: document.getElementById("navSignerPlace").value.trim(),
+        date: document.getElementById("navSignerDate").value,
+        headmasterName: document.getElementById("navSignerHeadmasterName").value.trim(),
+        headmasterNip: document.getElementById("navSignerHeadmasterNip").value.trim(),
+        counselorName: document.getElementById("navSignerCounselorName").value.trim(),
+        counselorNip: document.getElementById("navSignerCounselorNip").value.trim()
+      };
+      localStorage.setItem(SIGNER_STORAGE_KEY, JSON.stringify(signers));
+      loadSignerSettings();
+      closeSignerSettingsModal();
+      showToast("Data penandatangan berhasil disimpan!");
     }
 
     function saveSignerSettings() {
       const signers = {
-        satker: document.getElementById("signerSatker").value.trim(),
-        place: document.getElementById("signerPlace").value.trim(),
-        date: document.getElementById("signerDate").value,
-        headmasterName: document.getElementById("signerHeadmasterName").value.trim(),
-        headmasterNip: document.getElementById("signerHeadmasterNip").value.trim(),
-        counselorName: document.getElementById("signerCounselorName").value.trim(),
-        counselorNip: document.getElementById("signerCounselorNip").value.trim()
+        satker: (document.getElementById("signerSatker")?.value || "").trim(),
+        place: (document.getElementById("signerPlace")?.value || "").trim(),
+        date: document.getElementById("signerDate")?.value || new Date().toISOString().split("T")[0],
+        headmasterName: (document.getElementById("signerHeadmasterName")?.value || "").trim(),
+        headmasterNip: (document.getElementById("signerHeadmasterNip")?.value || "").trim(),
+        counselorName: (document.getElementById("signerCounselorName")?.value || "").trim(),
+        counselorNip: (document.getElementById("signerCounselorNip")?.value || "").trim()
       };
       localStorage.setItem(SIGNER_STORAGE_KEY, JSON.stringify(signers));
       return signers;
@@ -2423,97 +2701,96 @@
       document.getElementById("monthlyReportModal").classList.remove("flex");
     }
 
-    function getMonthlyReportData(targetMonth, targetYear) {
-      const rows = [];
-      students.forEach(s => {
-        const totalAbsen = (Number(s.sakit) || 0) + (Number(s.izin) || 0) + (Number(s.alpa) || 0);
+    function getMonthlyReportData() {
+      const month = parseInt(document.getElementById("reportMonthSelect").value, 10);
+      const year = parseInt(document.getElementById("reportYearSelect").value, 10);
+      const activeList = getFilteredStudents();
 
-        // Ambil kasus yang terjadi di bulan dan tahun yang dipilih
+      const reportRows = [];
+      activeList.forEach(s => {
+        // Cari apakah ada kasus pada bulan yang dipilih
         const monthCases = (s.cases || []).filter(c => {
           if (!c.date) return false;
           const [yr, mo] = c.date.split("-");
-          return parseInt(mo, 10) === targetMonth && parseInt(yr, 10) === targetYear;
+          return parseInt(mo, 10) === month && parseInt(yr, 10) === year;
         });
 
-        // Ambil data home visit di bulan tersebut
-        const monthHV = (s.homeVisitDocs || []).filter(d => {
-          if (!d.date) return false;
-          const [yr, mo] = d.date.split("-");
-          return parseInt(mo, 10) === targetMonth && parseInt(yr, 10) === targetYear;
+        // Cari pemanggilan pada bulan ini
+        const monthCalls = (s.callLogs || []).filter(cl => {
+          if (!cl.date) return false;
+          const [yr, mo] = cl.date.split("-");
+          return parseInt(mo, 10) === month && parseInt(yr, 10) === year;
         });
 
         if (monthCases.length > 0) {
-          monthCases.forEach(cs => {
-            rows.push({
+          monthCases.forEach(c => {
+            reportRows.push({
+              id: s.id,
               name: s.name,
               class: s.class,
               sakit: s.sakit || 0,
               izin: s.izin || 0,
               alpa: s.alpa || 0,
-              totalAbsen: totalAbsen,
-              date: cs.date,
-              description: cs.description,
-              action: cs.action || "-",
+              totalAbsen: (Number(s.sakit) || 0) + (Number(s.izin) || 0) + (Number(s.alpa) || 0),
+              date: c.date,
+              description: c.description + (c.action ? ` [Tindak Lanjut: ${c.action}]` : ""),
               calls: s.calls || 0,
-              homeVisit: (monthHV.length > 0 || s.homeVisit) ? "Sudah Dilakukan" : "Belum"
+              homeVisit: s.homeVisit ? "Ya" : "Tidak"
             });
           });
-        } else if (monthHV.length > 0) {
-          rows.push({
+        } else if (s.sakit > 0 || s.izin > 0 || s.alpa > 0 || s.calls > 0 || s.homeVisit || monthCalls.length > 0) {
+          // Tetap masukkan jika siswa memiliki riwayat absensi atau panggilan aktif
+          reportRows.push({
+            id: s.id,
             name: s.name,
             class: s.class,
             sakit: s.sakit || 0,
             izin: s.izin || 0,
             alpa: s.alpa || 0,
-            totalAbsen: totalAbsen,
-            date: monthHV[0].date,
-            description: "Kunjungan Rumah (Home Visit): " + (monthHV[0].notes || "Kunjungan rutin"),
-            action: "Dokumentasi diarsipkan",
+            totalAbsen: (Number(s.sakit) || 0) + (Number(s.izin) || 0) + (Number(s.alpa) || 0),
+            date: monthCalls.length > 0 ? monthCalls[0].date : "-",
+            description: monthCalls.length > 0 ? `[Panggilan]: ${monthCalls[0].reason}` : "Pemantauan berkala",
             calls: s.calls || 0,
-            homeVisit: "Sudah Dilakukan"
+            homeVisit: s.homeVisit ? "Ya" : "Tidak"
           });
         }
       });
-      return rows;
+
+      return reportRows;
     }
 
     function generateMonthlyReportView() {
-      const month = parseInt(document.getElementById("reportMonthSelect").value, 10);
-      const year = parseInt(document.getElementById("reportYearSelect").value, 10);
-      const reportRows = getMonthlyReportData(month, year);
       const tbody = document.getElementById("monthlyReportTableBody");
+      const rows = getMonthlyReportData();
       tbody.innerHTML = "";
 
-      if (reportRows.length === 0) {
+      if (rows.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="11" class="text-center py-8 text-slate-400 italic">
-              Tidak ada catatan kasus atau home visit pada bulan yang dipilih.
+            <td colspan="11" class="text-center py-6 text-slate-400">
+              Tidak ada catatan bimbingan atau kasus pada bulan dan tahun ini.
             </td>
           </tr>
         `;
         return;
       }
 
-      reportRows.forEach((r, idx) => {
+      rows.forEach((r, idx) => {
         const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-50 border-b border-slate-100";
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100 text-xs";
         tr.innerHTML = `
           <td class="py-2.5 px-3 text-center text-slate-500">${idx + 1}</td>
           <td class="py-2.5 px-3 font-semibold text-slate-800">${escapeHtml(r.name)}</td>
-          <td class="py-2.5 px-2 text-center">${escapeHtml(r.class)}</td>
-          <td class="py-2.5 px-2 text-center font-semibold text-amber-700 bg-amber-50/40">${r.sakit}</td>
-          <td class="py-2.5 px-2 text-center font-semibold text-blue-700 bg-blue-50/40">${r.izin}</td>
-          <td class="py-2.5 px-2 text-center font-semibold text-rose-700 bg-rose-50/40">${r.alpa}</td>
-          <td class="py-2.5 px-2 text-center font-bold text-slate-800">${r.totalAbsen}</td>
-          <td class="py-2.5 px-3 text-rose-700 font-medium">${r.date}</td>
-          <td class="py-2.5 px-4">
-            <p class="font-medium text-slate-800">${escapeHtml(r.description)}</p>
-            <p class="text-[11px] text-emerald-700">Tindakan: ${escapeHtml(r.action)}</p>
-          </td>
-          <td class="py-2.5 px-2 text-center font-bold">${r.calls}x</td>
+          <td class="py-2.5 px-2 text-center text-slate-600">${escapeHtml(r.class)}</td>
+          <td class="py-2.5 px-2 text-center text-amber-700 bg-amber-50/50">${r.sakit}</td>
+          <td class="py-2.5 px-2 text-center text-blue-700 bg-blue-50/50">${r.izin}</td>
+          <td class="py-2.5 px-2 text-center text-rose-700 bg-rose-50/50">${r.alpa}</td>
+          <td class="py-2.5 px-2 text-center font-bold text-slate-700">${r.totalAbsen}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600">${r.date}</td>
+          <td class="py-2.5 px-4 text-slate-700">${escapeHtml(r.description)}</td>
+          <td class="py-2.5 px-2 text-center font-semibold">${r.calls}x</td>
           <td class="py-2.5 px-3 text-center">
-            <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${r.homeVisit.includes('Sudah') ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${r.homeVisit === 'Ya' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}">
               ${r.homeVisit}
             </span>
           </td>
@@ -2523,132 +2800,96 @@
     }
 
     function exportMonthlyReportToExcel() {
-      const monthSelect = document.getElementById("reportMonthSelect");
-      const month = parseInt(monthSelect.value, 10);
-      const monthName = monthSelect.options[monthSelect.selectedIndex].text;
-      const year = parseInt(document.getElementById("reportYearSelect").value, 10);
-      const reportRows = getMonthlyReportData(month, year);
-
-      if (reportRows.length === 0) {
-        showToast("Tidak ada data laporan di bulan ini untuk di-export!", "error");
+      const rows = getMonthlyReportData();
+      if (rows.length === 0) {
+        showToast("Tidak ada data untuk diekspor pada bulan ini!", "info");
         return;
       }
 
-      const formatted = reportRows.map((r, i) => ({
+      const monthSelect = document.getElementById("reportMonthSelect");
+      const monthName = monthSelect.options[monthSelect.selectedIndex].text;
+      const year = document.getElementById("reportYearSelect").value;
+
+      const excelData = rows.map((r, i) => ({
         "No": i + 1,
         "Nama Siswa": r.name,
         "Kelas": r.class,
         "Sakit (S)": r.sakit,
         "Izin (I)": r.izin,
         "Alpa (A)": r.alpa,
-        "Total Absensi": r.totalAbsen,
+        "Total Absen": r.totalAbsen,
         "Tanggal Kejadian": r.date,
-        "Uraian Kasus / Masalah": r.description,
-        "Tindak Lanjut Konseling": r.action,
-        "Panggilan Siswa": `${r.calls} Kali`,
-        "Status Home Visit": r.homeVisit
+        "Uraian Kasus & Tindakan": r.description,
+        "Panggilan": r.calls,
+        "Home Visit": r.homeVisit
       }));
 
-      const worksheet = XLSX.utils.json_to_sheet(formatted);
-      worksheet["!cols"] = [
-        { wch: 6 },   // No
-        { wch: 28 },  // Nama
-        { wch: 10 },  // Kelas
-        { wch: 10 },  // S
-        { wch: 10 },  // I
-        { wch: 10 },  // A
-        { wch: 14 },  // Total Absensi
-        { wch: 16 },  // Tgl Kejadian
-        { wch: 40 },  // Deskripsi Kasus
-        { wch: 35 },  // Tindak Lanjut
-        { wch: 16 },  // Panggilan
-        { wch: 18 }   // Home Visit
-      ];
-
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, `Lap_${monthName}_${year}`);
-      XLSX.writeFile(workbook, `Laporan_Bulanan_BK_MTsN_Landak_${monthName}_${year}.xlsx`);
-      showToast(`Laporan bulan ${monthName} ${year} berhasil diunduh!`);
+      XLSX.utils.book_append_sheet(workbook, worksheet, `Laporan ${monthName} ${year}`);
+      XLSX.writeFile(workbook, `Laporan_BK_MTsN_Landak_${monthName}_${year}.xlsx`);
+      showToast("Laporan bulanan Excel berhasil diunduh!");
     }
 
-    // ==================== EXPORT DATA EXCEL ====================
+    // Export Tabel Utama ke File Excel
     function exportToExcel() {
-      if (students.length === 0) {
-        showToast("Tidak ada data untuk di-export!", "error");
+      const activeList = getFilteredStudents();
+      if (activeList.length === 0) {
+        showToast("Tidak ada data siswa untuk diekspor!", "info");
         return;
       }
 
-      // Format susunan kolom sesuai permintaan
-      const exportData = students.map((s, index) => {
-        const totalAbsen = (Number(s.sakit) || 0) + (Number(s.izin) || 0) + (Number(s.alpa) || 0);
-        
-        // Gabungkan seluruh riwayat kasus dan tanggalnya
-        const riwayatKasus = (s.cases || []).map(c => `[${c.date}] ${c.description} (Tindakan: ${c.action || '-'})`).join("; \n");
+      const exportRows = activeList.map((s, idx) => {
+        const lastCase = (s.cases && s.cases.length > 0)
+          ? `[${s.cases[s.cases.length - 1].date}] ${s.cases[s.cases.length - 1].description}`
+          : "-";
+        const totalAbs = (Number(s.sakit) || 0) + (Number(s.izin) || 0) + (Number(s.alpa) || 0);
 
         return {
-          "No": index + 1,
+          "No": idx + 1,
           "Nama Siswa": s.name,
           "Kelas": s.class,
           "No HP Orang Tua": s.phone || "-",
           "Alamat": s.address || "-",
-          "Sakit (S)": s.sakit || 0,
-          "Izin (I)": s.izin || 0,
-          "Alpa (A)": s.alpa || 0,
-          "Total Absensi (S+I+A)": totalAbsen,
-          "Kasus & Tanggal Kejadian": riwayatKasus || "Tidak ada kasus",
+          "Tahun Pelajaran": s.academicYear || "-",
+          "Semester": s.semester || "all",
+          "Sakit": s.sakit || 0,
+          "Izin": s.izin || 0,
+          "Alpa": s.alpa || 0,
+          "Total Absensi": totalAbs,
+          "Kasus Terakhir": lastCase,
           "Pemanggilan Siswa (Kali)": s.calls || 0,
-          "Home Visit": s.homeVisit ? "Sudah (V)" : "Belum"
+          "Home Visit (Ya/Tidak)": s.homeVisit ? "Ya" : "Tidak"
         };
       });
 
-      const worksheet = XLSX.utils.json_to_sheet(exportData);
-      
-      // Auto lebar kolom
-      const colWidths = [
-        { wch: 6 },   // No
-        { wch: 28 },  // Nama
-        { wch: 10 },  // Kelas
-        { wch: 18 },  // HP
-        { wch: 30 },  // Alamat
-        { wch: 10 },  // S
-        { wch: 10 },  // I
-        { wch: 10 },  // A
-        { wch: 15 },  // Total
-        { wch: 45 },  // Kasus
-        { wch: 18 },  // Panggilan
-        { wch: 14 },  // Home Visit
-      ];
-      worksheet["!cols"] = colWidths;
-
+      const worksheet = XLSX.utils.json_to_sheet(exportRows);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap BK MTsN Landak");
-
-      const today = new Date().toISOString().split("T")[0];
-      XLSX.writeFile(workbook, `Rekap_BK_MTsN_Landak_${today}.xlsx`);
-      showToast("File Excel berhasil diunduh!");
+      XLSX.writeFile(workbook, `Rekap_Siswa_BK_MTsN_Landak_${new Date().toISOString().split("T")[0]}.xlsx`);
+      showToast("Rekap Excel berhasil diunduh!");
     }
 
-    // Reset ke data awal demo
     function resetDataConfirmation() {
-      if (window.confirm("Apakah Anda yakin ingin mengatur ulang data ke sampel awal? Data perubahan saat ini akan dihapus.")) {
+      if (window.confirm("Apakah Anda yakin ingin mengembalikan data ke data demo awal? Semua perubahan lokal akan ter-reset.")) {
         students = JSON.parse(JSON.stringify(INITIAL_STUDENTS));
         saveToLocalStorage();
+        selectedStudentIds.clear();
+        updateBulkActionToolbar();
         renderTable();
         updateStatistics();
-        showToast("Data sampel berhasil dikembalikan");
+        showToast("Data demo berhasil dikembalikan!");
       }
     }
 
-    // Utility XSS Sanitizer
-    function escapeHtml(text) {
-      if (!text) return "";
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+    // Inisialisasi saat halaman selesai dimuat
+    window.addEventListener("DOMContentLoaded", () => {
+      renderTable();
+      updateStatistics();
+      initCloudSync();
+      loadSignerSettings();
+      lucide.createIcons();
+    });
   </script>
 </body>
 </html>
